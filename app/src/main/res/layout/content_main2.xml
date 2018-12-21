@@ -22,62 +22,80 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.design.widget.TextInputLayout
+
+        <LinearLayout
+            android:id="@+id/consultaForm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="50dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/socialNumberTextInput"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Número de Cédula"
-                android:inputType="number"
-                android:textSize="30sp" />
+                android:paddingTop="50dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp">
 
-        </android.support.design.widget.TextInputLayout>
+                <EditText
+                    android:id="@+id/socialNumberTextInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Número de Cédula"
+                    android:inputType="number"
+                    android:textSize="30sp" />
 
-        <Button
-            android:id="@+id/consultaButton"
-            android:layout_width="243dp"
-            android:layout_height="50sp"
-            android:layout_marginStart="65sp"
-            android:text="Consultar"
-            app:layout_constraintTop_toBottomOf="@+id/socialNumberTextInput" />
+            </android.support.design.widget.TextInputLayout>
 
-        <TextView
-            android:id="@+id/nameVerificationTextView"
-            android:layout_marginTop="40sp"
-            android:layout_marginLeft="8dp"
+            <Button
+                android:id="@+id/consultaButton"
+                android:layout_width="243dp"
+                android:layout_height="50sp"
+                android:layout_marginStart="65sp"
+                android:text="Consultar"
+                app:layout_constraintTop_toBottomOf="@+id/socialNumberTextInput" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/resultadoLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="-" />
+            android:orientation="vertical"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/validationTextView"
-            android:layout_marginTop="10sp"
-            android:layout_marginLeft="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-" />
+            <TextView
+                android:id="@+id/nameVerificationTextView"
+                android:layout_marginTop="40sp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-" />
 
-        <TextView
-            android:id="@+id/detailTextView"
-            android:layout_marginTop="10sp"
-            android:layout_marginLeft="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-" />
+            <TextView
+                android:id="@+id/validationTextView"
+                android:layout_marginTop="10sp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-" />
 
-        <TextView
-            android:id="@+id/turnTextView"
-            android:layout_marginTop="10sp"
-            android:layout_marginLeft="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-" />
+            <TextView
+                android:id="@+id/detailTextView"
+                android:layout_marginTop="10sp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-" />
+
+            <TextView
+                android:id="@+id/turnTextView"
+                android:layout_marginTop="10sp"
+                android:layout_marginLeft="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
