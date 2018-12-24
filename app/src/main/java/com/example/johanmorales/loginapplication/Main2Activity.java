@@ -1,6 +1,7 @@
 package com.example.johanmorales.loginapplication;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -40,7 +41,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Main2Activity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        ConnectivityReceiver.ConnectivityReceiverListener {
 
     private static final String TAG = Main2Activity.class.getSimpleName();
     private static final int MY_SOCKET_TIMEOUT_MS = 20000;
@@ -326,9 +328,14 @@ public class Main2Activity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_services) {
+            // Handle the action
+
+            Intent servicesIntent = new Intent(Main2Activity.this, ServicesActivity.class);
+            servicesIntent.putExtra("resultado", resultado);
+            startActivity(servicesIntent);
+
+        } /*else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -338,7 +345,7 @@ public class Main2Activity extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
 
-        }
+        }*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
