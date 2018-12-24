@@ -1,6 +1,7 @@
 package com.example.johanmorales.loginapplication;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -32,12 +33,14 @@ import com.android.volley.toolbox.Volley;
 import com.example.johanmorales.loginapplication.Models.Employee;
 import com.example.johanmorales.loginapplication.Models.Respuesta;
 import com.example.johanmorales.loginapplication.Models.Resultado;
+import com.example.johanmorales.loginapplication.utils.ConnectivityReceiver;
+import com.example.johanmorales.loginapplication.utils.MyApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Main2Activity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
     private static final String TAG = Main2Activity.class.getSimpleName();
     private static final int MY_SOCKET_TIMEOUT_MS = 20000;
@@ -54,17 +57,18 @@ public class Main2Activity extends AppCompatActivity
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                checkConnection();
             }
         });
 
@@ -133,13 +137,53 @@ public class Main2Activity extends AppCompatActivity
                     consultar(socialNumber);
                 }
 
-
-
             }
         });
 
 
         //-------------------------------------------------------------------------------
+    }
+
+    public void checkConnection(){
+        boolean isConnected = ConnectivityReceiver.isConnected();
+        showSnack(isConnected);
+    }
+
+    public void showSnack(boolean isConnected){
+
+        String message;
+        int color;
+
+        if(isConnected){
+            message = "Conectado a internet!";
+            color = Color.WHITE;
+        }else{
+            message = "Conexion a internet perdida!";
+            color = Color.RED;
+        }
+
+        Snackbar snack = Snackbar.make(findViewById(R.id.fab), message, Snackbar.LENGTH_LONG);
+        View sbView = snack.getView();
+        TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(color);
+        snack.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // register connection status listener
+        MyApplication.getInstance().setConnectivityListener(this);
+    }
+
+    /**
+     * Callback will be triggered when there is change in
+     * network connection
+     */
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        showSnack(isConnected);
     }
 
     public void consultar(String socialNumber){
@@ -300,4 +344,6 @@ public class Main2Activity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }
