@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#777"
+    android:padding="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,39 +12,99 @@
 
         <TextView
             android:id="@+id/paxNameTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="170dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="TextView" />
-
+            android:text="PEDRO PEREZ"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:textColor="#ffffff"/>
         <TextView
-            android:id="@+id/numVueloTextView"
-            android:layout_width="wrap_content"
+            android:id="@+id/statusTextView"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="TextView" />
+            android:textColor="#ffffff"
+            android:text="Sin Iniciar" />
 
     </LinearLayout>
 
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="0dp">
-
-        <TextView
-            android:id="@+id/serviceDateTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
+        android:layout_height="30dp">
 
         <TextView
             android:id="@+id/airlineTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="TextView" />
+            android:textColor="#ffffff"
+            android:text="AVA"
+            android:textSize="15dp"/>
+
+        <TextView
+            android:id="@+id/numVueloTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#ffffff"
+            android:text="AV0020"
+            android:textSize="15dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="0dp">
+
+        <TextView
+            android:id="@+id/labelServiceFlightDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:text="Vuelo: " />
+
+        <TextView
+            android:id="@+id/serviceFlightDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#ffffff"
+            android:text="2018-12-26" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="0dp">
+
+        <TextView
+            android:id="@+id/labelServiceDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:text="Inicio: " />
+
+        <TextView
+            android:id="@+id/serviceDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#ffffff"
+            android:text="2018-12-26" />
+
+        <Button
+            android:id="@+id/deleteServiceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Eliminar" />
 
     </LinearLayout>
 

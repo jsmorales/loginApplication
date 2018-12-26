@@ -1,12 +1,15 @@
 package com.example.johanmorales.loginapplication;
 
 import android.app.Service;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +40,11 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
     public View servicesProgress;
     public View emptyTextView;
     public ListView servicesListView;
+    public TextView counterTextView;
+    public ImageView refreshDataImageView;
+    public View formServices;
+
+    public Switch switchUrlSite;
 
     public SearchView servicesSearchView;
 
@@ -53,10 +61,18 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         servicesListView = findViewById(R.id.servicesListView);
 
+        counterTextView = findViewById(R.id.counterTextView);
+
+        refreshDataImageView = findViewById(R.id.refreshDataImageView);
+
         servicesSearchView = findViewById(R.id.servicesSearchView);
         servicesSearchView.setQueryHint("Buscar...");
 
         servicesSearchView.setOnQueryTextListener(this);
+
+        formServices = findViewById(R.id.formServices);
+
+        switchUrlSite = findViewById(R.id.switchUrlSite);
 
         //CharSequence query = servicesSearchView.getQuery();
 
@@ -65,8 +81,33 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         Log.d(TAG, "El token: "+resultado.getToken());
 
-        if( (serviceListView == null) ) {
-            getServices();
+
+        getServicesSwitch();
+
+        refreshDataImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getServicesSwitch();
+            }
+        });
+
+        switchUrlSite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getServicesSwitch();
+            }
+        });
+    }
+
+    public void getServicesSwitch(){
+
+        String urlApiTest = "https://prmsai-backend-test.azurewebsites.net/api/services?token="+resultado.getToken();
+        String urlApi = "https://sillaruedassai.azurewebsites.net/api/services?token="+resultado.getToken();
+
+        if(switchUrlSite.isChecked()){
+            getServices(urlApi);
+        }else{
+            getServices(urlApiTest);
         }
     }
 
@@ -93,10 +134,10 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
             for (Servicio service : serviceListView) {
 
-                Log.d(TAG, "Nombre: " + service.getPaxName());
-                Log.d(TAG, "Contiene: " + service.getPaxName().contains(text));
+                //Log.d(TAG, "Nombre: " + service.getPaxName());
+                //Log.d(TAG, "Contiene: " + service.getPaxName().contains(text));
 
-                if (service.getPaxName().contains(text)) {
+                if (service.getPaxName().contains(text) || service.getFlightId().contains(text) || service.getStatus().contains(text)) {
                     arrayListFiltered.add(service);
                 } else {
                     continue;
@@ -109,23 +150,12 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         return false;
     }
 
-    public void getServices(){
-
-        /**
-         *          ArrayList<Service> seriviceList = lo que venga del backend;
-         *          //adapter implementation
-         *         ServicesAdapter servicesAdapter = new ServicesAdapter(hoursListView,this);
-         *
-         *         hourlyListView.setAdapter(hourlyAdapter);
-         *         //setear la view de empty
-         *         hourlyListView.setEmptyView(emptyTextView);
-         * */
+    public void getServices(String urlApi){
 
         servicesProgress.setVisibility(View.VISIBLE);
+        formServices.setVisibility(View.GONE);
 
         RequestQueue queue = Volley.newRequestQueue(ServicesActivity.this);
-
-        String urlApi = "https://sillaruedassai.azurewebsites.net/api/services?token="+resultado.getToken();
 
         JSONObject req = new JSONObject();
 
@@ -142,6 +172,7 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                     public void onResponse(final JSONObject response) {
 
                         servicesProgress.setVisibility(View.GONE);
+                        formServices.setVisibility(View.VISIBLE);
 
                         JSONObject res = response;
                         Servicio servicio;
@@ -166,6 +197,9 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                                 servicio.setFlightId(val.getString("flightId"));
                                 servicio.setStartDate(val.getString("startDate"));
                                 servicio.setAirline(val.getString("airline"));
+                                servicio.setStatus(val.getString("status"));
+                                servicio.setFlightDateTime(val.getString("flightDateTime"));
+                                servicio.setId(val.getString("id"));
 
                                 Log.d(TAG, servicio.getPaxName());
 
@@ -209,10 +243,40 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
     public void setAdapterList(ArrayList<Servicio> serviceList){
 
-        ServicesAdapter servicesAdapter = new ServicesAdapter(serviceList,ServicesActivity.this);
+        ServicesAdapter servicesAdapter = new ServicesAdapter(serviceList,ServicesActivity.this, resultado.getToken(), this);
 
         servicesListView.setAdapter(servicesAdapter);
         servicesListView.setEmptyView(emptyTextView);
 
+        counterTextView.setText(serviceList.size()+" registros.");
+
     }
+
+    /*@Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList("serviceList",serviceListView);
+        outState.putString("pruebaSaved", "Prueba de saved state");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if( (savedInstanceState == null) ) {
+
+            getServicesSwitch();
+
+        }else{
+
+            Log.d(TAG, "List services array: esta en savedInstanceState");
+
+            Log.d(TAG,savedInstanceState.getString("pruebaSaved"));
+
+            Log.d(TAG,savedInstanceState.getParcelableArrayList("serviceList").toString());
+
+            setAdapterList(savedInstanceState.<Servicio>getParcelableArrayList("serviceList"));
+        }
+    }*/
 }
