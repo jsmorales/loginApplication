@@ -69,36 +69,28 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_services);
 
+        //binding objects
         emptyTextView = findViewById(R.id.emptyTextView);
-
         servicesProgress = findViewById(R.id.services_progress);
-
         servicesListView = findViewById(R.id.servicesListView);
-
         counterTextView = findViewById(R.id.counterTextView);
-
         refreshDataImageView = findViewById(R.id.refreshDataImageView);
-
         servicesSearchView = findViewById(R.id.servicesSearchView);
         servicesSearchView.setQueryHint("Buscar...");
-
         servicesSearchView.setOnQueryTextListener(this);
-
         formServices = findViewById(R.id.formServices);
-
         switchUrlSite = findViewById(R.id.switchUrlSite);
-
         loggerTextView = findViewById(R.id.loggerTextView);
-
         clearLogImageView = findViewById(R.id.clearLogImageView);
 
-        //CharSequence query = servicesSearchView.getQuery();
 
         //obtener el resultado del login
         resultado = (Resultado) getIntent().getExtras().get("resultado");
 
+        //-----------------------------------------------------------------------------------------
         Log.d(TAG, "El token: "+resultado.getToken());
 
+        switchUrlSite.setChecked(true);
 
         getServicesSwitch();
 
@@ -122,6 +114,7 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                 loggerTextView.setText("");
             }
         });
+        //-----------------------------------------------------------------------------------------
     }
 
     public void getServicesSwitch(){
