@@ -1,9 +1,7 @@
 package com.example.johanmorales.loginapplication;
 
-import android.app.Service;
-import android.os.PersistableBundle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,12 +21,19 @@ import com.android.volley.toolbox.Volley;
 import com.example.johanmorales.loginapplication.Adapters.ServicesAdapter;
 import com.example.johanmorales.loginapplication.Models.Resultado;
 import com.example.johanmorales.loginapplication.Models.Servicio;
+import com.example.johanmorales.loginapplication.utils.FormatDateUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+
 
 public class ServicesActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -43,6 +48,8 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
     public TextView counterTextView;
     public ImageView refreshDataImageView;
     public View formServices;
+    public TextView loggerTextView;
+    public ImageView clearLogImageView;
 
     public Switch switchUrlSite;
 
@@ -74,6 +81,10 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         switchUrlSite = findViewById(R.id.switchUrlSite);
 
+        loggerTextView = findViewById(R.id.loggerTextView);
+
+        clearLogImageView = findViewById(R.id.clearLogImageView);
+
         //CharSequence query = servicesSearchView.getQuery();
 
         //obtener el resultado del login
@@ -97,18 +108,40 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                 getServicesSwitch();
             }
         });
+
+        clearLogImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loggerTextView.setText("");
+            }
+        });
     }
 
     public void getServicesSwitch(){
 
-        String urlApiTest = "https://prmsai-backend-test.azurewebsites.net/api/services?token="+resultado.getToken();
-        String urlApi = "https://sillaruedassai.azurewebsites.net/api/services?token="+resultado.getToken();
+        String dateStart = FormatDateUtil.getActualDatePlusFive(" 00:00:00");
+        String dateEnd = FormatDateUtil.getActualDatePlusFive(" 24:00:00");
+
+        //Log.d(TAG, "Comienza en: "+dateStart+" termina en: "+dateEnd);
+
+        String dates = "&airline=-&dateStart="+dateStart.replaceAll(" ","%20")+"&dateEnd="+dateEnd.replaceAll(" ","%20");
+
+        String urlApiTest = "https://prmsai-backend-test.azurewebsites.net/api/services?token="+resultado.getToken()+dates;
+        String urlApi = "https://sillaruedassai.azurewebsites.net/api/services?token="+resultado.getToken()+dates;
+
+        //Log.d(TAG,urlApiTest);
+
+        final String urlApiTestClean = "https://prmsai-backend-test.azurewebsites.net";
+        final String urlApiClean = "https://sillaruedassai.azurewebsites.net";
 
         if(switchUrlSite.isChecked()){
-            getServices(urlApi);
+            getServices(urlApi,dateStart,dateEnd);
+            getConnectionSocket(urlApiClean);
         }else{
-            getServices(urlApiTest);
+            getServices(urlApiTest,dateStart,dateEnd);
+            getConnectionSocket(urlApiTestClean);
         }
+
     }
 
     @Override
@@ -150,7 +183,110 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         return false;
     }
 
-    public void getServices(String urlApi){
+    public void getConnectionSocket(final String url){
+
+        try {
+
+            IO.Options opts = new IO.Options();
+            opts.forceNew = false;
+            opts.transports = new String[] {"websocket"};
+
+            Socket socket = IO.socket(url, opts);
+
+            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+
+                    Log.d(TAG, "Socket conectado a: "+url);
+
+                    logerText("Socket conectado a: "+url);
+
+
+                }
+            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+
+                @Override
+                public void call(Object... args) {
+
+                    Log.d(TAG, "Socket desconectado de: "+url);
+
+                    logerText("Socket desconectado a: "+url);
+
+                }
+            }).on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+
+                    Log.d(TAG, "Error conectando a socket. ");
+
+                    //logerText("Error conectando a socket. ");
+
+                }
+            }).on("service_created", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d(TAG, "Servicio creado.");
+
+                    logerText("[Servicio Creado]");
+
+                    refreshDataOnThread();
+
+                }
+            }).on("service_updated", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d(TAG, "Servicio actualizado.");
+
+                    JSONObject obj = (JSONObject)args[0];
+
+                    try {
+                        logerText("[Servicio Actualizado] - "+obj.getString("paxName"));
+
+                        refreshDataOnThread();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+            socket.connect();
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void logerText(final String message){
+
+        //este metodo hace que retome el hilo principal para que se pueda
+        //modificar la interfaz
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                // Stuff that updates the UI
+                loggerTextView.append(message+"\n");
+            }
+        });
+
+    }
+
+    public void refreshDataOnThread(){
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                // Stuff that updates the UI
+                getServicesSwitch();
+            }
+        });
+    }
+
+    public void getServices(String urlApi, String dateStart, String dateEnd){
 
         servicesProgress.setVisibility(View.VISIBLE);
         formServices.setVisibility(View.GONE);
@@ -161,6 +297,8 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         try {
             req.put("token",resultado.getToken());
+            req.put("dateStart",dateStart);
+            req.put("dateEnd",dateEnd);
         } catch (JSONException e) {
             e.printStackTrace();
         }

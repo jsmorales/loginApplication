@@ -23,6 +23,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.johanmorales.loginapplication.Models.Servicio;
 import com.example.johanmorales.loginapplication.R;
 import com.example.johanmorales.loginapplication.ServicesActivity;
+import com.example.johanmorales.loginapplication.utils.FormatDateUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -105,8 +106,8 @@ public class ServicesAdapter extends BaseAdapter {
         serviceViewHolder.statusTextView.setText(servicesArray.get(position).getStatus());
 
 
-        serviceViewHolder.serviceDate.setText(getDateFormatted(servicesArray.get(position).getStartDate()));
-        serviceViewHolder.serviceFlightDateTextView.setText(getDateFormatted(servicesArray.get(position).getFlightDateTime()));
+        serviceViewHolder.serviceDate.setText(FormatDateUtil.getDateFormatted(servicesArray.get(position).getStartDate()));
+        serviceViewHolder.serviceFlightDateTextView.setText(FormatDateUtil.getDateFormatted(servicesArray.get(position).getFlightDateTime()));
 
         //set click listener
         convertView.setOnClickListener(new View.OnClickListener() {
@@ -163,39 +164,6 @@ public class ServicesAdapter extends BaseAdapter {
         TextView airline;
         TextView statusTextView;
         TextView serviceFlightDateTextView;
-    }
-
-    public String getDateFormatted(String dateString){
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        String format = null;
-
-        try {
-
-            Calendar cal = Calendar.getInstance(); // creates calendar
-            //String dateString = servicesArray.get(position).getStartDate();
-
-            dateString = dateString.replaceAll("(.000Z)","");
-            dateString = dateString.replaceAll("T"," ");
-
-            Log.d(TAG, "String solo:"+dateString);
-
-            //format = dateFormat.parse(dateString).toString();
-
-            cal.setTime(dateFormat.parse(dateString)); // sets calendar time/date
-
-            cal.add(Calendar.HOUR_OF_DAY, -5); // adds one hour
-
-            format = dateFormat.format(cal.getTime());
-
-        } catch (ParseException e) {
-
-            e.printStackTrace();
-        }
-
-        return format;
-
     }
 
     public void deleteService(String socialNumber){
