@@ -40,7 +40,9 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ServicesActivity"></activity>
+        <activity
+            android:name=".ServicesActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

@@ -47,6 +47,8 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
     private static final int MY_SOCKET_TIMEOUT_MS = 20000;
     private static final int ID_NOT_MESSAGE = 234560;
 
+    private Socket socket;
+
     public Resultado resultado;
 
     public View servicesProgress;
@@ -185,13 +187,15 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
     public void getConnectionSocket(final String url){
 
+        checkSocketStatus();
+
         try {
 
             IO.Options opts = new IO.Options();
             opts.forceNew = true;
             opts.transports = new String[] {"websocket"};
 
-            Socket socket = IO.socket(url, opts);
+            socket = IO.socket(url, opts);
 
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
@@ -245,6 +249,42 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                         logerText("[Servicio Actualizado] - "+obj.getString("paxName"));
 
                         notifyMessage("Actualizado","[Servicio Actualizado] - "+obj.getString("paxName"));
+
+                        //refreshDataOnThread();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }).on("service_assignation_updated", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d(TAG, "Servicio asignado.");
+
+                    JSONObject obj = (JSONObject)args[0];
+
+                    try {
+                        logerText("[Servicio Asignado] - "+obj.getString("serviceId"));
+
+                        notifyMessage("Asignado","[Servicio Actualizado] - "+obj.getString("serviceId"));
+
+                        //refreshDataOnThread();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }).on("service_deleted", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d(TAG, "Servicio eliminado.");
+
+                    JSONObject obj = (JSONObject)args[0];
+
+                    try {
+                        logerText("[Servicio Eliminado] - "+obj.getString("serviceId"));
+
+                        notifyMessage("Eliminado","[Servicio Eliminado] - "+obj.getString("serviceId"));
 
                         //refreshDataOnThread();
                     } catch (JSONException e) {
@@ -426,6 +466,25 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         counterTextView.setText(serviceList.size()+" registros.");
 
+    }
+
+    public void checkSocketStatus(){
+
+        if(socket == null){
+            Log.d(TAG, "Socket no inicializado!");
+        }else{
+            Log.d(TAG, "Socket ya ha iniciado!");
+            socket.disconnect();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG, "Ejecutando onDestroy");
+
+        checkSocketStatus();
     }
 
     /*@Override
