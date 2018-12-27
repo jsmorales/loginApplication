@@ -42,7 +42,10 @@
 
         <activity
             android:name=".ServicesActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"></activity>
     </application>
 
 </manifest>

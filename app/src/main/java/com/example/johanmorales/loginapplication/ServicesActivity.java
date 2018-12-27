@@ -2,10 +2,13 @@ package com.example.johanmorales.loginapplication;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -321,6 +324,13 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         Random rand = new Random();
 
+        Intent notifyIntent = new Intent(this, this.getClass());
+        // Set the Activity to start in a new, empty task
+        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        // Create the PendingIntent
+        PendingIntent notifyPendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "logginAppChannel")
                 .setSmallIcon(R.drawable.ic_menu_send)
                 .setContentTitle("SAI-Monitor - "+title)
@@ -329,7 +339,11 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setVibrate(new long[]{NotificationCompat.DEFAULT_VIBRATE})
                 .setShowWhen(true)
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setAutoCancel(true);
+
+        //
+        mBuilder.setContentIntent(notifyPendingIntent);
 
 
         //for android 8.0 o higher
