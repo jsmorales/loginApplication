@@ -1,6 +1,11 @@
 package com.example.johanmorales.loginapplication;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +34,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -39,6 +45,7 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
     private static final String TAG = ServicesActivity.class.getSimpleName();
     private static final int MY_SOCKET_TIMEOUT_MS = 20000;
+    private static final int ID_NOT_MESSAGE = 234560;
 
     public Resultado resultado;
 
@@ -188,7 +195,7 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         try {
 
             IO.Options opts = new IO.Options();
-            opts.forceNew = false;
+            opts.forceNew = true;
             opts.transports = new String[] {"websocket"};
 
             Socket socket = IO.socket(url, opts);
@@ -229,7 +236,9 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
                     logerText("[Servicio Creado]");
 
-                    refreshDataOnThread();
+                    notifyMessage("Creado","[Servicio Creado]");
+
+                    //refreshDataOnThread();
 
                 }
             }).on("service_updated", new Emitter.Listener() {
@@ -242,7 +251,9 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                     try {
                         logerText("[Servicio Actualizado] - "+obj.getString("paxName"));
 
-                        refreshDataOnThread();
+                        notifyMessage("Actualizado","[Servicio Actualizado] - "+obj.getString("paxName"));
+
+                        //refreshDataOnThread();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -271,6 +282,40 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
             }
         });
 
+    }
+
+    public void notifyMessage(String title, String message){
+
+        Random rand = new Random();
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "logginAppChannel")
+                .setSmallIcon(R.drawable.ic_menu_send)
+                .setContentTitle("SAI-Monitor - "+title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setVibrate(new long[]{NotificationCompat.DEFAULT_VIBRATE})
+                .setShowWhen(true)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE);
+
+
+        //for android 8.0 o higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "logginAppChannel";
+            String description = "loginapp";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("logginAppChannel", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManagerCompat.notify(rand.nextInt(ID_NOT_MESSAGE)+1, mBuilder.build());
     }
 
     public void refreshDataOnThread(){
