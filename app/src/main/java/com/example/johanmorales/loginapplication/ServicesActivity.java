@@ -95,7 +95,7 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         //-----------------------------------------------------------------------------------------
         Log.d(TAG, "El token: "+resultado.getToken());
 
-        switchUrlSite.setChecked(true);
+        //switchUrlSite.setChecked(true);
 
         getServicesSwitch();
 
@@ -326,10 +326,19 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         Intent notifyIntent = new Intent(this, this.getClass());
         // Set the Activity to start in a new, empty task
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        //https://stackoverflow.com/questions/12408719/resume-activity-in-android
+        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        //put the extras (android lg k10 2017)
+        notifyIntent.putExtra("resultado", resultado);
+        // Create the TaskStackBuilder and add the intent, which inflates the back stack
+        //TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        //stackBuilder.addNextIntentWithParentStack(notifyIntent);
+
         // Create the PendingIntent
         PendingIntent notifyPendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        //PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
+        //startActivityIfNeeded(notifyIntent, 0);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "logginAppChannel")
                 .setSmallIcon(R.drawable.ic_menu_send)
