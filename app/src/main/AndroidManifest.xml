@@ -37,15 +37,21 @@
             android:name=".utils.ConnectivityReceiver"
             android:enabled="true">
             <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                <action
+                    android:name="android.net.conn.CONNECTIVITY_CHANGE"
                     tools:ignore="BatteryLife" />
             </intent-filter>
         </receiver>
 
         <activity
             android:name=".ServicesActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".Services.MyServiceSocketIO"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

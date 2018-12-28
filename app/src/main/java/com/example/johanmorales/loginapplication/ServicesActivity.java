@@ -3,9 +3,13 @@ package com.example.johanmorales.loginapplication;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -29,6 +33,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.johanmorales.loginapplication.Adapters.ServicesAdapter;
 import com.example.johanmorales.loginapplication.Models.Resultado;
 import com.example.johanmorales.loginapplication.Models.Servicio;
+import com.example.johanmorales.loginapplication.Services.MyServiceSocketIO;
 import com.example.johanmorales.loginapplication.utils.FormatDateUtil;
 
 import org.json.JSONArray;
@@ -44,11 +49,12 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 
-public class ServicesActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+public class ServicesActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, ServiceConnection {
 
     private static final String TAG = ServicesActivity.class.getSimpleName();
     private static final int MY_SOCKET_TIMEOUT_MS = 20000;
     private static final int ID_NOT_MESSAGE = 234560;
+    private static boolean activityVisible;
 
     private Socket socket;
 
@@ -87,7 +93,6 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         switchUrlSite = findViewById(R.id.switchUrlSite);
         loggerTextView = findViewById(R.id.loggerTextView);
         clearLogImageView = findViewById(R.id.clearLogImageView);
-
 
         //obtener el resultado del login
         resultado = (Resultado) getIntent().getExtras().get("resultado");
@@ -190,6 +195,17 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
     public void getConnectionSocket(final String url){
 
+        //inicializar el servicio
+        Intent socketServiceIntent = new Intent(this, MyServiceSocketIO.class);
+
+        socketServiceIntent.putExtra("url",url);
+        socketServiceIntent.putExtra("resultado",resultado);
+
+        //bindService(socketServiceIntent,this, Context.BIND_AUTO_CREATE);
+
+        startService(socketServiceIntent);
+
+        /*
         checkSocketStatus();
 
         try {
@@ -301,7 +317,7 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void logerText(final String message){
@@ -322,56 +338,60 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
     public void notifyMessage(String title, String message){
 
-        Random rand = new Random();
+        if(!isActivityVisible()) {
 
-        Intent notifyIntent = new Intent(this, this.getClass());
-        // Set the Activity to start in a new, empty task
-        //https://stackoverflow.com/questions/12408719/resume-activity-in-android
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        //put the extras (android lg k10 2017)
-        notifyIntent.putExtra("resultado", resultado);
-        // Create the TaskStackBuilder and add the intent, which inflates the back stack
-        //TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        //stackBuilder.addNextIntentWithParentStack(notifyIntent);
+            Random rand = new Random();
 
-        // Create the PendingIntent
-        PendingIntent notifyPendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent notifyIntent = new Intent(this, this.getClass());
+            // Set the Activity to start in a new, empty task
+            //https://stackoverflow.com/questions/12408719/resume-activity-in-android
+            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            //put the extras (android lg k10 2017)
+            notifyIntent.putExtra("resultado", resultado);
+            // Create the TaskStackBuilder and add the intent, which inflates the back stack
+            //TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            //stackBuilder.addNextIntentWithParentStack(notifyIntent);
 
-        //PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
-        //startActivityIfNeeded(notifyIntent, 0);
+            // Create the PendingIntent
+            PendingIntent notifyPendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "logginAppChannel")
-                .setSmallIcon(R.drawable.ic_menu_send)
-                .setContentTitle("SAI-Monitor - "+title)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setVibrate(new long[]{NotificationCompat.DEFAULT_VIBRATE})
-                .setShowWhen(true)
-                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                .setAutoCancel(true);
+            //PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT);
+            //startActivityIfNeeded(notifyIntent, 0);
 
-        //
-        mBuilder.setContentIntent(notifyPendingIntent);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "logginAppChannel")
+                    .setSmallIcon(R.drawable.ic_menu_send)
+                    .setContentTitle("SAI-Monitor - " + title)
+                    .setContentText(message)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setVibrate(new long[]{NotificationCompat.DEFAULT_VIBRATE})
+                    .setShowWhen(true)
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    .setAutoCancel(true);
+
+            //
+            mBuilder.setContentIntent(notifyPendingIntent);
 
 
-        //for android 8.0 o higher
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "logginAppChannel";
-            String description = "loginapp";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("logginAppChannel", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            //for android 8.0 o higher
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                CharSequence name = "logginAppChannel";
+                String description = "loginapp";
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel channel = new NotificationChannel("logginAppChannel", name, importance);
+                channel.setDescription(description);
+                // Register the channel with the system; you can't change the importance
+                // or other notification behaviors after this
+                NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+
+            // notificationId is a unique int for each notification that you must define
+            notificationManagerCompat.notify(rand.nextInt(ID_NOT_MESSAGE) + 1, mBuilder.build());
+
         }
-
-        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
-
-        // notificationId is a unique int for each notification that you must define
-        notificationManagerCompat.notify(rand.nextInt(ID_NOT_MESSAGE)+1, mBuilder.build());
     }
 
     public void refreshDataOnThread(){
@@ -505,9 +525,32 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
     protected void onDestroy() {
         super.onDestroy();
 
+        //logerText("onDestroy");
+
         Log.d(TAG, "Ejecutando onDestroy");
 
         checkSocketStatus();
+    }
+
+    //validates if the activity is visible
+
+    public static boolean isActivityVisible() {
+        return activityVisible;
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+
+        //MyServiceSocketIO.MyBinder binder = (MyServiceSocketIO.MyBinder) service;
+
+        Log.d(TAG, "Service socket Conectado!!");
+
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+
+        Log.d(TAG, "Service socket desconectado!!");
     }
 
     /*@Override
