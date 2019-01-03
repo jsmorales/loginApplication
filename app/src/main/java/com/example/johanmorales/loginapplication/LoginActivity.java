@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
     public String password;
     public String region = REGION;
 
-    private Respuesta respuesta;
+    public Respuesta respuesta;
     private Resultado resultado;
     private Employee empleado;
 
@@ -71,6 +71,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_login);
+
+        getSupportActionBar().setTitle("Login - SAI");
 
         // Set up the login form.
         mEmailView = findViewById(R.id.email);

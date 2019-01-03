@@ -61,9 +61,16 @@ public class Main2Activity extends AppCompatActivity
     protected void onCreate(final Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main2);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        toolbar.setTitle("SAI - Monitor");
+        toolbar.setNavigationContentDescription("SAI - Monitor");
+
         setSupportActionBar(toolbar);
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -290,6 +297,15 @@ public class Main2Activity extends AppCompatActivity
         queue.add(jsonObjectRequest);
     }
 
+    public void closeSession(){
+
+        Intent intentCloseSession = new Intent(this, LoginActivity.class);
+
+        //se deberia tener una instancia de LoginActivity para poder dejar null la respuesta
+
+        startActivity(intentCloseSession);
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -316,6 +332,9 @@ public class Main2Activity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            closeSession();
+
             return true;
         }
 

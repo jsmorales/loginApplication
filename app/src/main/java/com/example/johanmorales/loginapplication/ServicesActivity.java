@@ -10,11 +10,16 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -49,11 +54,16 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 
-public class ServicesActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, ServiceConnection {
+public class ServicesActivity extends AppCompatActivity implements
+        SearchView.OnQueryTextListener,
+        ServiceConnection,
+        NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = ServicesActivity.class.getSimpleName();
     private static final int MY_SOCKET_TIMEOUT_MS = 20000;
     private static final int ID_NOT_MESSAGE = 234560;
+    public static final String urlApiTestClean = "https://prmsai-backend-test.azurewebsites.net";
+    public static final String urlApiClean = "https://sillaruedassai.azurewebsites.net";
     private static boolean activityVisible;
 
     private Socket socket;
@@ -64,10 +74,9 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
     public View emptyTextView;
     public ListView servicesListView;
     public TextView counterTextView;
-    public ImageView refreshDataImageView;
     public View formServices;
     public TextView loggerTextView;
-    public ImageView clearLogImageView;
+    public ImageView backButtonTool;
 
     public Switch switchUrlSite;
 
@@ -75,27 +84,39 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
     public ArrayList<Servicio> serviceListView;
 
+    public Intent socketServiceIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_services);
+
+        //setting the toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar_1);
+        toolbar.setTitle("SAI - Servicios PRM");
+        toolbar.setTitleMarginStart(155);
+        setSupportActionBar(toolbar);
+        //change title SupportActionBar
+        //getSupportActionBar().setTitle("Servicios - SAI");
 
         //binding objects
         emptyTextView = findViewById(R.id.emptyTextView);
         servicesProgress = findViewById(R.id.services_progress);
         servicesListView = findViewById(R.id.servicesListView);
         counterTextView = findViewById(R.id.counterTextView);
-        refreshDataImageView = findViewById(R.id.refreshDataImageView);
         servicesSearchView = findViewById(R.id.servicesSearchView);
         servicesSearchView.setQueryHint("Buscar...");
         servicesSearchView.setOnQueryTextListener(this);
         formServices = findViewById(R.id.formServices);
         switchUrlSite = findViewById(R.id.switchUrlSite);
         loggerTextView = findViewById(R.id.loggerTextView);
-        clearLogImageView = findViewById(R.id.clearLogImageView);
+        backButtonTool = findViewById(R.id.backButtonTool);
 
         //obtener el resultado del login
         resultado = (Resultado) getIntent().getExtras().get("resultado");
+
+        //service intent
+        socketServiceIntent = new Intent(this, MyServiceSocketIO.class);
 
         //-----------------------------------------------------------------------------------------
         Log.d(TAG, "El token: "+resultado.getToken());
@@ -104,13 +125,6 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         getServicesSwitch();
 
-        refreshDataImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getServicesSwitch();
-            }
-        });
-
         switchUrlSite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,10 +132,10 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
             }
         });
 
-        clearLogImageView.setOnClickListener(new View.OnClickListener() {
+        backButtonTool.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loggerTextView.setText("");
+                finish();
             }
         });
         //-----------------------------------------------------------------------------------------
@@ -140,9 +154,6 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         String urlApi = "https://sillaruedassai.azurewebsites.net/api/services?token="+resultado.getToken()+dates;
 
         //Log.d(TAG,urlApiTest);
-
-        final String urlApiTestClean = "https://prmsai-backend-test.azurewebsites.net";
-        final String urlApiClean = "https://sillaruedassai.azurewebsites.net";
 
         if(switchUrlSite.isChecked()){
             getServices(urlApi,dateStart,dateEnd);
@@ -193,10 +204,10 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         return false;
     }
 
-    public void getConnectionSocket(final String url){
+    public void getInitServiceSocket(final String url){
 
         //inicializar el servicio
-        Intent socketServiceIntent = new Intent(this, MyServiceSocketIO.class);
+        //Intent socketServiceIntent = new Intent(this, MyServiceSocketIO.class);
 
         socketServiceIntent.putExtra("url",url);
         socketServiceIntent.putExtra("resultado",resultado);
@@ -204,8 +215,11 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         //bindService(socketServiceIntent,this, Context.BIND_AUTO_CREATE);
 
         startService(socketServiceIntent);
+    }
 
-        /*
+    public void getConnectionSocket(final String url){
+
+
         checkSocketStatus();
 
         try {
@@ -252,10 +266,6 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
                     logerText("[Servicio Creado]");
 
-                    notifyMessage("Creado","[Servicio Creado]");
-
-                    //refreshDataOnThread();
-
                 }
             }).on("service_updated", new Emitter.Listener() {
                 @Override
@@ -265,11 +275,9 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                     JSONObject obj = (JSONObject)args[0];
 
                     try {
+
                         logerText("[Servicio Actualizado] - "+obj.getString("paxName"));
 
-                        notifyMessage("Actualizado","[Servicio Actualizado] - "+obj.getString("paxName"));
-
-                        //refreshDataOnThread();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -283,11 +291,9 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                     JSONObject obj = (JSONObject)args[0];
 
                     try {
+
                         logerText("[Servicio Asignado] - "+obj.getString("serviceId"));
 
-                        notifyMessage("Asignado","[Servicio Actualizado] - "+obj.getString("serviceId"));
-
-                        //refreshDataOnThread();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -301,11 +307,9 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
                     JSONObject obj = (JSONObject)args[0];
 
                     try {
+
                         logerText("[Servicio Eliminado] - "+obj.getString("serviceId"));
 
-                        notifyMessage("Eliminado","[Servicio Eliminado] - "+obj.getString("serviceId"));
-
-                        //refreshDataOnThread();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -317,7 +321,7 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
 
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        }*/
+        }/**/
     }
 
     public void logerText(final String message){
@@ -392,19 +396,6 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
             notificationManagerCompat.notify(rand.nextInt(ID_NOT_MESSAGE) + 1, mBuilder.build());
 
         }
-    }
-
-    public void refreshDataOnThread(){
-
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                // Stuff that updates the UI
-                getServicesSwitch();
-            }
-        });
     }
 
     public void getServices(String urlApi, String dateStart, String dateEnd){
@@ -530,6 +521,8 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         Log.d(TAG, "Ejecutando onDestroy");
 
         checkSocketStatus();
+
+        stopService(socketServiceIntent);
     }
 
     //validates if the activity is visible
@@ -538,46 +531,89 @@ public class ServicesActivity extends AppCompatActivity implements SearchView.On
         return activityVisible;
     }
 
+    public void initServiceSocketIO(){
+
+        if(switchUrlSite.isChecked()){
+            getInitServiceSocket(urlApiClean);
+        }else {
+            getInitServiceSocket(urlApiTestClean);
+        }
+    }
+
+    public void activityResumed() {
+
+        activityVisible = true;
+
+        //initServiceSocketIO();
+        Log.d(TAG, "Ejecutando activityResumed");
+        stopService(socketServiceIntent);
+    }
+
+    public void activityPaused() {
+
+        activityVisible = false;
+
+        initServiceSocketIO();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        activityResumed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        activityPaused();
+    }
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
 
         //MyServiceSocketIO.MyBinder binder = (MyServiceSocketIO.MyBinder) service;
 
-        Log.d(TAG, "Service socket Conectado!!");
+        Log.d(TAG, "Service socket corriendo!!");
 
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
 
-        Log.d(TAG, "Service socket desconectado!!");
-    }
-
-    /*@Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelableArrayList("serviceList",serviceListView);
-        outState.putString("pruebaSaved", "Prueba de saved state");
+        Log.d(TAG, "Service socket no esta corriendo!!");
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.servicesmenu, menu);
+        return true;
+    }
 
-        if( (savedInstanceState == null) ) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if(id == R.id.action_refresh){
 
             getServicesSwitch();
 
-        }else{
+        }else if(id == R.id.action_clear_log){
 
-            Log.d(TAG, "List services array: esta en savedInstanceState");
-
-            Log.d(TAG,savedInstanceState.getString("pruebaSaved"));
-
-            Log.d(TAG,savedInstanceState.getParcelableArrayList("serviceList").toString());
-
-            setAdapterList(savedInstanceState.<Servicio>getParcelableArrayList("serviceList"));
+            loggerTextView.setText("");
         }
-    }*/
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        return false;
+    }
+
 }

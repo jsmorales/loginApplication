@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorButtonNormal"
+    tools:context=".ServicesActivity">
+
+    <!-- Load the toolbar here -->
+    <include
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <ProgressBar
+        android:id="@+id/services_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+
+    <!--<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"></ScrollView>-->
+
+    <LinearLayout
+        android:layout_marginTop="55dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Switch
+                android:id="@+id/switchUrlSite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="12dp"
+                android:text="Producción " />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/loggerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/servicesListView"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:text=""
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:id="@+id/formServices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <SearchView
+                android:id="@+id/servicesSearchView"
+                android:layout_width="fill_parent"
+                android:layout_height="35dp"
+                android:layout_below="@id/loggerTextView"
+                android:iconifiedByDefault="false"/>
+
+            <ListView
+                android:id="@+id/servicesListView"
+                android:layout_width="match_parent"
+                android:layout_height="340dp"
+                android:layout_marginTop="0dp"
+                android:padding="10dp" />
+
+            <TextView
+                android:id="@+id/emptyTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="60dp"
+                android:layout_marginTop="250dp"
+                android:text="No hay servicios que mostrar."
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/counterTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/servicesListView"
+                android:layout_marginLeft="10dp"
+                android:text="0 registros"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

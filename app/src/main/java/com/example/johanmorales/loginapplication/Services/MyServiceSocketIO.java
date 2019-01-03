@@ -69,7 +69,7 @@ public class MyServiceSocketIO extends Service {
 
     public void getConnectionSocket(final String url){
 
-        /**/
+        /*validate socket connection*/
         checkSocketStatus();
 
         try {
@@ -252,6 +252,23 @@ public class MyServiceSocketIO extends Service {
         // notificationId is a unique int for each notification that you must define
         notificationManagerCompat.notify(rand.nextInt(ID_NOT_MESSAGE) + 1, mBuilder.build());
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        socket.disconnect();
+    }
+
+    @Override
+    public boolean stopService(Intent name) {
+
+        Log.d(TAG, "parando el servicio sockect!");
+
+        socket.disconnect();
+
+        return super.stopService(name);
     }
 
     public class MyBinder extends Binder {
