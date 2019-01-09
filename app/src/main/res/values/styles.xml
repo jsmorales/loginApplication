@@ -13,6 +13,20 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="recentLogsTitle">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="recentLogSuccess">
+        <item name="android:background">#155724</item>
+    </style>
+
+    <style name="recentLogFail">
+        <item name="android:background">#721c24</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

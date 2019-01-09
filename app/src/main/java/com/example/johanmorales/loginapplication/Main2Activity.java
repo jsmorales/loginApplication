@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -31,14 +33,20 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
+import com.example.johanmorales.loginapplication.Fragments.IncomeRecentsFragment;
 import com.example.johanmorales.loginapplication.Models.Employee;
+import com.example.johanmorales.loginapplication.Models.RecentLog;
 import com.example.johanmorales.loginapplication.Models.Respuesta;
 import com.example.johanmorales.loginapplication.Models.Resultado;
 import com.example.johanmorales.loginapplication.utils.ConnectivityReceiver;
 import com.example.johanmorales.loginapplication.utils.MyApplication;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class Main2Activity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -46,6 +54,7 @@ public class Main2Activity extends AppCompatActivity
 
     private static final String TAG = Main2Activity.class.getSimpleName();
     private static final int MY_SOCKET_TIMEOUT_MS = 20000;
+    private static final String INCOME_RECENTS_FRAGMENT_TAG = "income_recents_fragment_tag";
     public TextView userNameTextViewToolBar;
     public TextView positionTextViewToolBar;
     public EditText socialNumberTextInput;
@@ -345,6 +354,9 @@ public class Main2Activity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         int id = item.getItemId();
 
         if (id == R.id.nav_services) {
@@ -354,9 +366,26 @@ public class Main2Activity extends AppCompatActivity
             servicesIntent.putExtra("resultado", resultado);
             startActivity(servicesIntent);
 
-        } /*else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_recent_income) {
 
-        } else if (id == R.id.nav_slideshow) {
+            Log.d(TAG,"Recientes en un fragment!");
+
+            //call incomeRecentsFragment
+
+            consultarLogsRecientes();
+            /**
+             *
+            //fragment manager, gestiona los elementos fragment
+            FragmentManager fragmentManager = getSupportFragmentManager(); //Support porque extiende de AppCompatibility
+            //ahora se crea un fragment transaction para poner el fragment sobre la actividad que se quiere
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction(); //se le da la instracciona al fragment masnager que se quiere iuniciar una trasaccion
+            //va contenedor en este caso el layout que contiene el contenido principal, luego el fragment, y un tag en este caso cualquier variable tipo string que identifique el fragment
+            IncomeRecentsFragment incomeRecentsFragment = new IncomeRecentsFragment();
+            fragmentTransaction.add(R.id.contentMain, incomeRecentsFragment, INCOME_RECENTS_FRAGMENT_TAG);
+            //se realiza la transacción
+            fragmentTransaction.commit(); */
+
+        } /*else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
 
@@ -366,9 +395,154 @@ public class Main2Activity extends AppCompatActivity
 
         }*/
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    public void consultarLogsRecientes(){
+
+        consulta_progress.setVisibility(View.VISIBLE);
+        consultaForm.setVisibility(View.GONE);
+        resultadoLayout.setVisibility(View.GONE);
+
+        final ArrayList<RecentLog> arrRecentLogs = new ArrayList<>();
+
+        RequestQueue queue = Volley.newRequestQueue(Main2Activity.this);
+
+        String urlApi = "https://control-llegada-backend-test.azurewebsites.net/api/recentLogs";
+
+        JSONObject req = new JSONObject();
+
+        try {
+            req.put("token",resultado.getToken());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, urlApi, req, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(final JSONObject response) {
+
+                        //executeResponseJsonApp(response);
+
+                        consulta_progress.setVisibility(View.GONE);
+                        consultaForm.setVisibility(View.VISIBLE);
+                        resultadoLayout.setVisibility(View.VISIBLE);
+
+                        JSONObject res = response;
+
+                        Log.d(TAG, "Status de la respuesta recentLogs: " + res.toString());
+
+                        try {
+
+                            JSONArray resArray = res.getJSONArray("result");
+
+                            for(Integer i = 0; i < resArray.length(); i++){
+
+                                JSONObject logJson;
+
+                                RecentLog recentLog = new RecentLog();
+
+                                logJson = (JSONObject) resArray.get(i);
+
+                                recentLog.setName(logJson.getString("name"));
+                                recentLog.setArrivingControlLogId(logJson.getInt("arrivingControlLogId"));
+                                recentLog.setArrivingTime(logJson.getString("arrivingTime"));
+                                recentLog.setArrivingAgent(logJson.getString("arrivingAgent"));
+                                recentLog.setAgentTurn(logJson.getString("agentTurn"));
+                                recentLog.setAbleToEnter(logJson.getBoolean("isAbleToEnter"));
+                                recentLog.setDetail(logJson.getString("detail"));
+
+                                Log.d(TAG, recentLog.getName());
+
+                                arrRecentLogs.add(recentLog);
+                            }
+
+
+                            Bundle bundle = new Bundle();
+
+                            bundle.putParcelableArrayList("recent_logs",arrRecentLogs);
+
+                            //fragment manager, gestiona los elementos fragment
+                            FragmentManager fragmentManager = getSupportFragmentManager(); //Support porque extiende de AppCompatibility
+                            //ahora se crea un fragment transaction para poner el fragment sobre la actividad que se quiere
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction(); //se le da la instracciona al fragment masnager que se quiere iuniciar una trasaccion
+                            //va contenedor en este caso el layout que contiene el contenido principal, luego el fragment, y un tag en este caso cualquier variable tipo string que identifique el fragment
+                            IncomeRecentsFragment incomeRecentsFragment = new IncomeRecentsFragment();
+                            //se setea los argumentos para el fragment en este caso un bundle con el array list de recientes
+                            incomeRecentsFragment.setArguments(bundle);
+                            //se añade la transaccion
+                            fragmentTransaction.add(R.id.contentMain, incomeRecentsFragment, INCOME_RECENTS_FRAGMENT_TAG);
+                            //se realiza la transacción
+                            fragmentTransaction.commit();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        /*TextView nameVerificationTextView = findViewById(R.id.nameVerificationTextView);
+                        TextView validationTextView = findViewById(R.id.validationTextView);
+                        TextView detailTextView = findViewById(R.id.detailTextView);
+                        TextView turnTextView = findViewById(R.id.turnTextView);
+
+                        try {
+
+                            if(res.getBoolean("success")) {
+
+                                JSONObject result = response.getJSONObject("result");
+
+                                nameVerificationTextView.setText(result.getString("name"));
+
+                                validationTextView.setText(result.getBoolean("validation") ? "Puede Ingresar" : "No puede Ingresar");
+
+                                detailTextView.setText(result.getString("detail"));
+
+                                turnTextView.setText(result.getString("turn"));
+
+                            }else{
+                                Toast.makeText(Main2Activity.this, res.getString("message"), Toast.LENGTH_SHORT).show();
+
+                                nameVerificationTextView.setText("-");
+
+                                validationTextView.setText("-");
+
+                                detailTextView.setText("-");
+
+                                turnTextView.setText("-");
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }*/
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+
+                        Log.d(TAG, error.toString());
+
+                        consulta_progress.setVisibility(View.GONE);
+
+                        //despliegue del error en un toast
+                        Toast.makeText(Main2Activity.this,error.toString(),Toast.LENGTH_LONG).show();
+
+                    }
+                });
+
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                MY_SOCKET_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        // Add the request to the RequestQueue.
+        queue.add(jsonObjectRequest);
     }
 
 

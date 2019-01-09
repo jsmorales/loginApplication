@@ -8,11 +8,11 @@
             android:id="@+id/nav_services"
             android:icon="@drawable/ic_menu_send"
             android:title="Servicios" />
-        <!--<item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
         <item
+            android:id="@+id/nav_recent_income"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Entradas Recientes" />
+        <!--<item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Slideshow" />

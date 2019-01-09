@@ -3,4 +3,8 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="recentLogSuccess">#155724</color>
+    <color name="recentLogFail">#721c24</color>
+    <color name="backgroudColorRecentLogs">#f8f9fa</color>
+    <color name="backgroundColorRecentLogsDark">#7e8285</color>
 </resources>

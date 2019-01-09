@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:padding="13dp"
+    android:layout_height="wrap_content">
+    <!-- red color #721c24-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/recentLogContentItem"
+        tool:background="#155724"
+        android:padding="13dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp">
+
+            <TextView
+                android:id="@+id/titleNameTextView"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Agente:"
+                style="@style/recentLogsTitle"
+                android:layout_width="match_parent" />
+
+            <TextView
+                android:id="@+id/nameTextView"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Juan Perez"
+                android:textColor="#fff"
+                android:layout_width="match_parent" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp">
+
+            <TextView
+                android:id="@+id/titleArrivingAgentTextView"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Documento:"
+                style="@style/recentLogsTitle"
+                android:layout_width="match_parent" />
+
+            <TextView
+                android:id="@+id/arrivingAgentTextView"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:text="1016031308"
+                android:layout_width="match_parent" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp">
+
+            <TextView
+                android:id="@+id/titleAgentTurnTextView"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Turno:"
+                style="@style/recentLogsTitle"
+                android:layout_width="match_parent" />
+
+            <TextView
+                android:id="@+id/agentTurnTextView"
+                android:layout_weight="1"
+                android:textColor="#fff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2019-01-08T10:00:00.607Z" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp"
+            android:layout_weight="0">
+
+            <TextView
+                android:id="@+id/titleArrivingTimeTextView"
+                android:layout_weight="1"
+                style="@style/recentLogsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Llegada:" />
+
+            <TextView
+                android:id="@+id/arrivingTimeTextView"
+                android:layout_weight="1"
+                android:textColor="#fff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2019-01-08T10:00:00.607Z" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="0dp"
+            android:layout_weight="0">
+
+            <TextView
+                android:id="@+id/titleDetailTextView"
+                android:layout_weight="1"
+                style="@style/recentLogsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Detalle:" />
+
+            <TextView
+                android:id="@+id/detailTextView"
+                android:layout_weight="1"
+                android:textColor="#fff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="En el rango de tiempo." />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
