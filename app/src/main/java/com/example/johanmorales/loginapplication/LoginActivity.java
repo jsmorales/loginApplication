@@ -257,6 +257,16 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(mainActivityIntent);
     }
 
+    @Override
+    public void onBackPressed() {
+
+        if (respuesta == null) {
+            Log.d(TAG, "se debe generar la respuesta nuevamente.");
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     /*
 
     private void attemptLogin() {

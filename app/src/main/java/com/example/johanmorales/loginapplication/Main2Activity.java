@@ -116,9 +116,9 @@ public class Main2Activity extends AppCompatActivity
 
         if(respuesta != null){
 
-            Log.d(TAG,"respuesta sigue: "+respuesta.toString());
+            Log.d(TAG,"respuesta sigue: "+respuesta.getMessage());
 
-            Toast.makeText(this, respuesta.getMessage(), Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, respuesta.getMessage(), Toast.LENGTH_LONG).show();
 
             resultado = respuesta.getResult();
 
@@ -307,6 +307,8 @@ public class Main2Activity extends AppCompatActivity
     }
 
     public void closeSession(){
+
+        respuesta = null;
 
         Intent intentCloseSession = new Intent(this, LoginActivity.class);
 

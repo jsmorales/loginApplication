@@ -1,6 +1,8 @@
 package com.example.johanmorales.loginapplication.Adapters;
 
-import android.annotation.SuppressLint;
+//antes de crear el adapter hay que crear el layout para cada item que se va a mostrar,
+// en este caso fragment_income_recents_item
+
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +40,9 @@ public class RecentsAdapter extends RecyclerView.Adapter<RecentsAdapter.MyViewHo
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
+        //11. se instancia el inflater con el layout que se va a ocupar por cada item mas el layout que ocupa el contexto
+        //y se retorna esta vista instanciando la vista view holder
+
         View view = LayoutInflater.from(context).inflate(R.layout.fragment_income_recents_item, viewGroup, false);
 
         MyViewHolder recentsViewHolder = new MyViewHolder(view);
@@ -45,11 +50,9 @@ public class RecentsAdapter extends RecyclerView.Adapter<RecentsAdapter.MyViewHo
         return recentsViewHolder;
     }
 
-    @SuppressLint("ResourceAsColor")
+
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, int i) {
-
-
 
         //10. se hace el bind de datos con la layout elemento por elemento
         RecentLog recentObjt = recentLogsArrayList.get(i); //se obtiene el objeto del ArrayList en esa posicion

@@ -20,18 +20,15 @@ public class FormatDateUtil {
         try {
 
             Calendar cal = Calendar.getInstance(); // creates calendar
-            //String dateString = servicesArray.get(position).getStartDate();
 
             dateString = dateString.replaceAll("(.000Z)","");
             dateString = dateString.replaceAll("T"," ");
 
             Log.d(TAG, "String solo:"+dateString);
 
-            //format = dateFormat.parse(dateString).toString();
-
             cal.setTime(dateFormat.parse(dateString)); // sets calendar time/date
 
-            cal.add(Calendar.HOUR_OF_DAY, -5); // adds one hour
+            cal.add(Calendar.HOUR_OF_DAY, -5); // subtract 5 hours
 
             format = dateFormat.format(cal.getTime());
 
